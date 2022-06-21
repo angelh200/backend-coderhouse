@@ -26,10 +26,23 @@ class Contenedor {
         }
     }
 
+    async updateById(id, product) {
+        try{
+            const items = await this.getAll();
+            const itemIndex = items.findIndex(el => el.id == id);
+            const newProduct = {...product, id};
+            items[itemIndex] = newProduct;
+            await fsPromises.writeFile(this.filePath, JSON.stringify(items, null, 2));
+            return newProduct;
+        } catch(err) {
+            console.log('Error al actualizar', err);
+        }
+    }
+
     async getById(id) {
         try {
             const items = await this.getAll();
-            const foundItem = items.find(el => el.id === id);
+            const foundItem = items.find(el => el.id == id);
             if (!foundItem) return null;
             return foundItem;
         } catch(err) {
@@ -49,13 +62,14 @@ class Contenedor {
     async deleteById(id) {
         try {
             const items = await this.getAll();
-            const arrayIndex = items.findIndex(el => el.id === id);
+            const arrayIndex = items.findIndex(el => el.id == id);
             if(arrayIndex === -1) {
                 console.log(`El archivo con id:${id} no existe`);
                 return null;
             }
             items.splice(arrayIndex, 1);
             await fsPromises.writeFile(this.filePath, JSON.stringify(items, null, 2));
+            return id;
         } catch(err) {
             console.log('No se pudo eliminar el item', err);
         }
